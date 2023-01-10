@@ -165,7 +165,6 @@ let importNodes = t => {
 
 window.onload = () => {
     editor = document.getElementById("editor")
-    console.log(localStorage.getItem("data"))
     importNodes(localStorage.getItem("data") ?? "")
     render()
 }
