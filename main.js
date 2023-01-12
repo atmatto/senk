@@ -195,6 +195,6 @@ let importNodes = t => {
 
 window.onload = () => {
     editor = document.getElementById("editor")
-    importNodes(localStorage.getItem("data") ?? "")
+    importNodes(localStorage.getItem("data") ?? "Welcome to senk!\n A bulleted list editor\n The code is available there: https://github.com/atmatto/senk-nano")
     render()
 }
