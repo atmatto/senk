@@ -15,6 +15,12 @@ let render = () => {
     // never let the document be empty (otherwise the user would have no place to type in the content)
     if (nodes.length === 0) nodes.push(node("",0))
 
+    // delete superfluous newlines (Android workaround)
+    nodes = nodes.map(n => {
+        n.text = n.text.replaceAll("\n", "")
+        return n
+    })
+
     let code = "" // generated HTML
     let level = -1 // current indentation level
     // generate the code
@@ -54,19 +60,6 @@ let area = (a) => {
     let index = parseInt(a.dataset.index)
     textareas[index] = a
     a.className = "ta" // mark as initialized
-
-    let update = () => {
-        // dynamic height
-        a.style.height = "0"
-        a.style.height = a.scrollHeight + "px"
-
-        nodes[index].text = a.value
-
-        localStorage.setItem("data", exportNodes())
-    }
-    update()
-    a.oninput = update
-    window.addEventListener("resize", update)
 
     // keyboard input handling
     a.onkeydown = (e) => {
@@ -148,6 +141,43 @@ let area = (a) => {
                 return
         }
         e.preventDefault()
+    }
+
+    let update = () => {
+        // dynamic height
+        a.style.height = "0"
+        a.style.height = a.scrollHeight + "px"
+
+        nodes[index].text = a.value
+
+        localStorage.setItem("data", exportNodes())
+    }
+    update()
+    window.addEventListener("resize", update)
+
+    a.oninput = () => {
+        update()
+
+        // keyboard input on Android workaround
+        let n = textareas[index].value.indexOf("\n")
+        if (n !== -1) {
+            // alert("\"" + textareas[index].value + "\"")
+            nodes.splice(index + 1, 0, node("", nodes[index].indent)) // insert new node below
+            // move text after the cursor to the new node
+            nodes[index + 1].text = nodes[index].text.slice(n + 1)
+            nodes[index].text = nodes[index].text.slice(0, n)
+            refresh(index + 1)
+        }
+    }
+
+    // keyboard input on Android workaround
+    a.onbeforeinput = (e) => {
+        if (e.data === " " && textareas[index].selectionEnd === 0) {
+            // indent
+            e.preventDefault()
+            nodes[index].indent = nodes[index].indent + 1
+            refresh(index)
+        }
     }
 }
 
