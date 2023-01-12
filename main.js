@@ -90,12 +90,12 @@ let area = (a) => {
                 }
                 break
             case 37: // left
-                if (e.shiftKey) return // would unexpectedly break the selection
+                if (e.shiftKey && textareas[index].selectionStart !== textareas[index].selectionEnd) return // would unexpectedly break the selection
                 if (textareas[index].selectionStart !== 0) return
                 focusArea(index - 1, -1)
                 break
             case 39: // right
-                if (e.shiftKey) return // would unexpectedly break the selection
+                if (e.shiftKey && textareas[index].selectionStart !== textareas[index].selectionEnd) return // would unexpectedly break the selection
                 if (textareas[index].selectionEnd !== textareas[index].value.length) return
                 focusArea(index + 1, 0)
                 break
