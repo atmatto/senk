@@ -30,13 +30,14 @@ func (db *Database) signIn(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &http.Cookie{
 				Name:     SessionCookieName,
 				Value:    sid,
+				Path:     "/",
 				Secure:   true,
 				HttpOnly: true,
 				SameSite: http.SameSiteLaxMode,
 				MaxAge:   int(SessionAbsoluteTimeout.Seconds()),
 			})
-			w.Header().Add("Location", "/test.html") // TODO: Check this; Read from parameter
-			w.WriteHeader(http.StatusOK)
+			w.Header().Add("Location", r.Referer()) // TODO: Should be handled in JS
+			w.WriteHeader(http.StatusFound)
 			return
 		}
 	}
@@ -46,6 +47,7 @@ func (db *Database) signIn(w http.ResponseWriter, r *http.Request) {
 func (db *Database) signOut(w http.ResponseWriter, r *http.Request) {
 	sid, _, ok := GetSessionCtx(r.Context())
 	if !ok {
+		w.WriteHeader(http.StatusNotFound) // TODO: status
 		return
 	}
 	db.Sessions.InvalidateSession(sid)
@@ -57,6 +59,9 @@ func (db *Database) signOut(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   -1,
 	})
+
+	w.Header().Add("Location", r.Referer()) // TODO: Handle in JS
+	w.WriteHeader(http.StatusFound)
 }
 
 func (db *Database) SetupAuthentication(r *chi.Mux) {

@@ -49,6 +49,9 @@ func main() {
 
 	db.StartStorageWorker()
 
+	// TODO: for testing:
+	log.Println(db.Users.AddUser("teus2", "VeryStrongP@ssword123Wtf#"))
+
 	// Router
 
 	r := chi.NewRouter()
@@ -58,14 +61,15 @@ func main() {
 	r.Use(db.Sessions.SessionRetrievalMiddleware)
 
 	db.SetupAuthentication(r)
-
+	db.SetupClient(r)
+	
 	r.Route("/n/{user:~[a-z][a-z0-9_-]+}/{noteId}", func(r chi.Router) {
 
 	})
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome"))
-	})
+	// r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	// 	w.Write([]byte("welcome"))
+	// })
 
 	// Server
 

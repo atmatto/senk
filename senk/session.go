@@ -44,6 +44,12 @@ type Sessions struct {
 	mu  sync.RWMutex
 }
 
+func (sessions *Sessions) Initialize() {
+	if sessions.Map == nil {
+		sessions.Map = make(map[string]Session)
+	}
+}
+
 // NewSession returns the session's id. In case of failure, it returns an empty string.
 func (sessions *Sessions) NewSession() string {
 	sessions.mu.Lock()
@@ -68,6 +74,8 @@ func (sessions *Sessions) NewSession() string {
 
 	return strid
 }
+
+// TODO: Invalidate all sessions of a given user
 
 func (sessions *Sessions) InvalidateSession(id string) {
 	sessions.mu.Lock()
@@ -96,7 +104,6 @@ func (sessions *Sessions) SessionRetrievalMiddleware(next http.Handler) http.Han
 		cookie, err := r.Cookie(SessionCookieName)
 		if err == nil {
 			sessions.mu.Lock()
-			defer sessions.mu.Unlock()
 			session, ok := sessions.Map[cookie.Value]
 			if ok {
 				if session.IsExpired() {
@@ -108,6 +115,7 @@ func (sessions *Sessions) SessionRetrievalMiddleware(next http.Handler) http.Han
 					r = r.WithContext(context.WithValue(r.Context(), ContextKey("sessionId"), cookie.Value))
 				}
 			}
+			sessions.mu.Unlock()
 		}
 		next.ServeHTTP(w, r)
 	})
