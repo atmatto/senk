@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+// TODO: Rate limiting
 func (db *Database) signIn(w http.ResponseWriter, r *http.Request) {
 	username := r.PostFormValue("username")
 	password := r.PostFormValue("password")
@@ -36,12 +37,12 @@ func (db *Database) signIn(w http.ResponseWriter, r *http.Request) {
 				SameSite: http.SameSiteLaxMode,
 				MaxAge:   int(SessionAbsoluteTimeout.Seconds()),
 			})
-			w.Header().Add("Location", r.Referer()) // TODO: Should be handled in JS
+			w.Header().Add("Location", r.Referer())
 			w.WriteHeader(http.StatusFound)
 			return
 		}
 	}
-	w.WriteHeader(http.StatusForbidden)
+	w.WriteHeader(http.StatusForbidden) // TODO: Show more than a blank page
 }
 
 func (db *Database) signOut(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +61,7 @@ func (db *Database) signOut(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1,
 	})
 
-	w.Header().Add("Location", r.Referer()) // TODO: Handle in JS
+	w.Header().Add("Location", r.Referer())
 	w.WriteHeader(http.StatusFound)
 }
 

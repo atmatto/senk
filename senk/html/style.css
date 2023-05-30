@@ -1,0 +1,48 @@
+* {
+    font-family: "Noto Sans";
+}
+
+body {
+    margin: 0;
+    background-color: #f8f9fa;
+}
+
+body > div, body > header, body > main, body > footer {
+    background-color: white;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 16px 50px;
+}
+
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+}
+
+form * {
+    display: block;
+}
+
+form > div {
+    margin-bottom: 15px;
+}
+
+form label {
+    margin-bottom: 8px;
+}
+
+form input[type="text"], form input[type="password"] {
+    background-color: white;
+    padding: 6px 8px;
+    border: 1px solid #aaa;
+    border-radius: 2px;
+}
+
+form input[type="submit"] {
+    font-size: 0.9em;
+    background-color: #eee;
+    border: 1px solid #999;
+    border-radius: 2px;
+    margin-top: 30px;
+    padding: 6px 16px;
+}

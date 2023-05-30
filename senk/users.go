@@ -48,7 +48,7 @@ func (u *User) CheckPassword(password string) bool {
 func (u *User) SetPassword(password string) error {
 	if len(password) < 8 || len(password) > 256 {
 		return ErrPasswordLength
-	} else if zxcvbn.PasswordStrength(password, []string{u.Username}).Score < 3 {
+	} else if zxcvbn.PasswordStrength(password, []string{u.Username}).Score < 2 {
 		return ErrPasswordStrength
 	}
 
