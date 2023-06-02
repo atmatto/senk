@@ -75,25 +75,36 @@ type Metadata struct {
 	mu    sync.RWMutex
 }
 
-func (m *Metadata) GetNoteMeta(user, slug string) NoteMeta {
+func (m *Metadata) Initialize() {
+	if m.Notes == nil {
+		m.Notes = make(map[string]NoteMeta)
+	}
+}
+
+func (m *Metadata) GetNoteMeta(user, id string) NoteMeta {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	return m.Notes[fmt.Sprintf("%s/%s", user, slug)]
+	return m.Notes[fmt.Sprintf("%s/%s", user, id)]
 }
 
-func (m *Metadata) SetNoteMeta(user, slug string, meta NoteMeta) {
+func (m *Metadata) SetNoteMeta(user, id string, meta NoteMeta) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	m.Notes[fmt.Sprintf("%s/%s", user, slug)] = meta
+	m.Notes[fmt.Sprintf("%s/%s", user, id)] = meta
 }
 
-func (m *Metadata) GetUserNotes(user string) (notes []NoteMeta) {
+type Note struct {
+	Path     string
+	Metadata NoteMeta
+}
+
+func (m *Metadata) GetUserNotes(user string) (notes []Note) {
 	// TODO: Maybe make this more efficient
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	for k, n := range m.Notes {
 		if b, _, _ := strings.Cut(k, "/"); b == user {
-			notes = append(notes, n)
+			notes = append(notes, Note{k, n})
 		}
 	}
 	return
@@ -102,28 +113,28 @@ func (m *Metadata) GetUserNotes(user string) (notes []NoteMeta) {
 type NoteWrite struct {
 	user    string // user performing the action
 	owner   string // note owner
-	slug    string
-	delete  bool // note is to be deleted if true
+	id      string // note id
+	delete  bool // note is to be deleted if true (content is ignored)
 	content string
 	resp    chan error
 }
 
 func (w *NoteWrite) Execute(db *Database) error {
-	if !db.Metadata.CheckPermission(w.owner, w.slug, w.user, PermissionWrite) {
+	if !db.Metadata.CheckPermission(w.owner, w.id, w.user, PermissionWrite) {
 		return ErrNoAccess
 	}
 
 	s := db.storage.UserStores[w.user]
 
 	if w.delete {
-		err := s.Remove(w.slug)
+		err := s.Remove(w.id)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
 
-	f, err := s.Overwrite(w.slug)
+	f, err := s.Overwrite(w.id)
 	if err != nil {
 		return err
 	}
@@ -143,18 +154,18 @@ type NoteReadResp struct {
 type NoteRead struct {
 	user  string // user performing the action
 	owner string // note owner
-	slug  string
+	id    string // note id
 	resp  chan NoteReadResp
 }
 
 func (w *NoteRead) Execute(db *Database) (string, error) {
-	if !db.Metadata.CheckPermission(w.owner, w.slug, w.user, PermissionRead) {
+	if !db.Metadata.CheckPermission(w.owner, w.id, w.user, PermissionRead) {
 		return "", ErrNoAccess
 	}
 
 	s := db.storage.UserStores[w.user]
 
-	f, err := s.Open(w.slug, 0)
+	f, err := s.Open(w.id, 0)
 	if err != nil {
 		return "", err
 	}

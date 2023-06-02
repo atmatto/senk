@@ -52,24 +52,29 @@ func main() {
 	// TODO: for testing:
 	log.Println(db.Users.AddUser("teus2", "VeryStrongP@ssword123Wtf#"))
 
-	// Router
+	// Routes
 
 	r := chi.NewRouter()
-
 	r.Use(middleware.Logger)
-
 	r.Use(db.Sessions.SessionRetrievalMiddleware)
 
-	db.SetupAuthentication(r)
-	db.SetupClient(r)
+	r.Post("/session/signin", db.signIn)
+	r.Post("/session/signout", db.signOut)
 	
-	r.Route("/n/{user:~[a-z][a-z0-9_-]+}/{noteId}", func(r chi.Router) {
+	r.Get("/", db.serveMain)
+	r.Get("/app.js", serveStatic("app.js", "text/javascript"))
+	r.Get("/style.css", serveStatic("style.css", "text/css"))
 
+	r.Route("/api", func (r chi.Router) {
+		r.Get("/index", db.getIndex)
+		r.Post("/new", db.createNote)
 	})
-
-	// r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-	// 	w.Write([]byte("welcome"))
-	// })
+	
+	r.Route("/{user:~[a-z][a-z0-9_-]+}/{id}", func(r chi.Router) {
+		r.Get("/", db.readNote)
+		r.Put("/", db.writeNote)
+		r.Delete("/", db.deleteNote)
+	})
 
 	// Server
 

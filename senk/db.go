@@ -63,6 +63,7 @@ func LoadDatabase(path string) (*Database, error) {
 		return nil, err
 	}
 
+	db.Metadata.Initialize()
 	db.Sessions.Initialize()
 
 	return &db, nil

@@ -4,8 +4,6 @@ import (
 	"embed"
 	"net/http"
 	"log"
-
-	"github.com/go-chi/chi/v5"
 )
 
 //go:embed html/*
@@ -39,10 +37,4 @@ func (db *Database) serveMain(w http.ResponseWriter, r *http.Request) {
 	} else {
 		serveApp(w, r)
 	}
-}
-
-func (db *Database) SetupClient(r *chi.Mux) {
-	r.Get("/", db.serveMain)
-	r.Get("/app.js", serveStatic("app.js", "text/javascript"))
-	r.Get("/style.css", serveStatic("style.css", "text/css"))
 }

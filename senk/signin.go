@@ -3,7 +3,6 @@
 package main
 
 import (
-	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
 )
@@ -63,9 +62,4 @@ func (db *Database) signOut(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Location", r.Referer())
 	w.WriteHeader(http.StatusFound)
-}
-
-func (db *Database) SetupAuthentication(r *chi.Mux) {
-	r.Post("/session/signin", db.signIn)
-	r.Post("/session/signout", db.signOut)
 }
