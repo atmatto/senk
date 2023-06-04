@@ -4,7 +4,9 @@ const add = (parent, tag, text = "", props = {}) => {
     for (const prop of Object.entries(props)) {
         element[prop[0]] = prop[1]
     }
-    parent.appendChild(element)
+    if (parent !== null) {
+        parent.appendChild(element)
+    }
     return element
 }
 
@@ -19,7 +21,6 @@ const buildIndex = (data) => {
 const getIndex = (user) => {
     const main = document.getElementsByTagName("main")[0]
     if (user === "") { // Get the index for the current user
-        add(main, "p", "Viewing index")
         fetch("/api/index")
             .then(resp => {
                 if (!resp.ok) {
@@ -33,18 +34,17 @@ const getIndex = (user) => {
             })
     } else { // Get the index for the specified user
         // TODO: backend
-        add(main, "p", "Viewing index of ~" + user)
+        add(main, "p", "Viewing index of " + user)
     }
 }
 
 const buildEditor = (path, data) => {
     const main = document.getElementsByTagName("main")[0]
-    add(main, "p", path.slice(1))
     /* const editor = */ add(main, "textarea", data)
 }
 
 const getNote = (user, id) => {
-    const path = "/~" + user + "/" + id
+    const path = "/" + user + "/" + id
     fetch(path + "/raw")
         .then(resp => {
             if (!resp.ok) {
@@ -67,14 +67,23 @@ window.onload = () => {
             elements++
         }
     }
-    
+
+    const header = document.getElementsByTagName("header")[0]
+    const title = document.getElementById("title")
     switch (elements) {
     case 0:
+        getIndex("")
+        header.classList.add("notitle")
+        break
     case 1:
-        getIndex(path[0].slice(1))
+        getIndex(path[0])
+        title.replaceChildren(add(null, "span", path[0]))
+        header.classList.remove("notitle")
         break
     case 2:
-        getNote(path[0].slice(1), path[1])
+        getNote(path[0], path[1])
+        title.replaceChildren(add(null, "a", path[0], {href: "/"+path[0]}), add(null, "span", "/"+path[1]))
+        header.classList.remove("notitle")
         break
     }
 }

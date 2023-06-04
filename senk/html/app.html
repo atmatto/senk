@@ -38,6 +38,7 @@
             } */
 
             textarea {
+                box-sizing: border-box;
                 width: 100%;
                 height: 512px;
                 resize: none;
@@ -49,13 +50,14 @@
         </style>
     </head>
     <body>
-        <header>
-            <h1>senk</h1>
+        <header class="notitle">
+            <div id="toolbar">
+                <h1><a href="/">senk</a></h1>
+                <form method="POST" action="/api/new"><input type="submit" value="Create new note"></form>
+                <form method="POST" action="/session/signout"><input type="submit" value="Sign out"></form>
+            </div>
+            <h2 id="title">TODO</h2>
         </header>
-        <div>
-            <form method="POST" action="/session/signout"><input type="submit" value="Sign out"></form>
-            <form method="POST" action="/api/new"><input type="submit" value="Create new note"></form>
-        </div>
         <main></main>
         <footer></footer>
     </body>

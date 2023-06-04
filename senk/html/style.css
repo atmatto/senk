@@ -14,6 +14,12 @@ body > div, body > header, body > main, body > footer {
     padding: 16px 50px;
 }
 
+@media (max-width: 1000px) {
+    body > div, body > header, body > main, body > footer {
+        padding: 16px 24px;
+    }
+}
+
 h1, h2, h3 {
     margin: 0;
     padding: 0;
@@ -46,4 +52,52 @@ form input[type="submit"] {
     border-radius: 2px;
     margin-top: 30px;
     padding: 6px 16px;
+}
+
+#toolbar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 6px;
+}
+
+#toolbar * {
+    font-size: inherit;
+}
+
+#toolbar h1 {
+    margin-right: auto;
+}
+
+@media (min-width: 650px) {
+    .notitle #toolbar h1 {
+        font-size: 32px;
+    }
+}
+
+#toolbar a {
+    color: inherit;
+    text-decoration: none;
+}
+
+#toolbar form input[type="submit"] {
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    text-decoration: underline;
+}
+
+#toolbar form input[type="submit"]:hover {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+header h2 {
+    font-size: 32px;
+}
+
+.notitle #title {
+    display: none;
 }
