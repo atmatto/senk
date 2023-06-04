@@ -5,12 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"sync"
 )
 
 var (
 	ErrNoAccess = errors.New("user does not have the required permission")
+	ErrIdUsed   = errors.New("note with this id exists")
 )
 
 type PermissionLevel int
@@ -21,8 +23,8 @@ const (
 	PermissionWrite
 )
 
-func (p *PermissionLevel) MarshalJson() ([]byte, error) {
-	switch *p {
+func (p PermissionLevel) MarshalJSON() ([]byte, error) {
+	switch p {
 	case PermissionRead:
 		return json.Marshal("r")
 	case PermissionWrite:
@@ -32,18 +34,18 @@ func (p *PermissionLevel) MarshalJson() ([]byte, error) {
 	}
 }
 
-func (p *PermissionLevel) UnmarshalJson(data []byte) error {
+func (p *PermissionLevel) UnmarshalJSON(data []byte) error {
 	var str string
 	if err := json.Unmarshal(data, &str); err != nil {
 		return err
 	}
 	switch str {
+	default:
+		*p = PermissionNone
 	case "r":
 		*p = PermissionRead
 	case "w":
 		*p = PermissionWrite
-	default:
-		*p = PermissionNone
 	}
 	return nil
 }
@@ -59,7 +61,7 @@ func (p *PermissionLevel) Limit(l PermissionLevel) PermissionLevel {
 type NoteMeta struct {
 	Owner  string
 	Public PermissionLevel
-	// TODO: Sharing
+	// TODO: Modification/creation time, sharing
 }
 
 func (n *NoteMeta) GetPermissions(user string) PermissionLevel {
@@ -114,18 +116,24 @@ type NoteWrite struct {
 	user    string // user performing the action
 	owner   string // note owner
 	id      string // note id
-	delete  bool // note is to be deleted if true (content is ignored)
+	create  bool   // abort if note already exists
+	delete  bool   // note is to be deleted if true (content is ignored)
 	content string
 	resp    chan error
 }
 
 func (w *NoteWrite) Execute(db *Database) error {
-	if !db.Metadata.CheckPermission(w.owner, w.id, w.user, PermissionWrite) {
-		return ErrNoAccess
-	}
-
 	s := db.storage.UserStores[w.user]
 
+	if w.create {
+		_, err := s.Stat(w.id, false)
+		if !errors.Is(err, os.ErrNotExist) {
+			return ErrIdUsed
+		}
+	} else if !db.Metadata.CheckPermission(w.owner, w.id, w.user, PermissionWrite) {
+		return ErrNoAccess
+	}
+	
 	if w.delete {
 		err := s.Remove(w.id)
 		if err != nil {
@@ -160,7 +168,7 @@ type NoteRead struct {
 
 func (w *NoteRead) Execute(db *Database) (string, error) {
 	if !db.Metadata.CheckPermission(w.owner, w.id, w.user, PermissionRead) {
-		return "", ErrNoAccess
+		return "", ErrNoAccess // TODO: What if the note doesn't exist?
 	}
 
 	s := db.storage.UserStores[w.user]

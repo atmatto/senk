@@ -22,6 +22,7 @@ func (db *Database) getIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Sort by recency
 	notes := db.Metadata.GetUserNotes(session.Data.Username)
 	bytes, err := json.Marshal(notes)
 	if err != nil {
@@ -110,35 +111,50 @@ func (db *Database) createNote(w http.ResponseWriter, r* http.Request) {
 		return
 	}
 
-	id := uuid.NewString() // TODO: Handle collisions
+	var id string
+	for i := 0; i < 10; i++ { // Retry in case of id collision, at most 10 times
+		id = uuid.NewString()
+
+		respc := make(chan error)
+		db.storage.Writes <- NoteWrite{
+			user: session.Data.Username,
+			owner: session.Data.Username,
+			id: id,
+			create: true,
+			delete: false,
+			content: "",
+			resp: respc,
+		}
+
+		err := <- respc
+
+		if errors.Is(err, ErrNoAccess) {
+			http.Error(w, "Insufficient permissions", http.StatusForbidden)
+			return
+		} else if errors.Is(err, ErrIdUsed) {
+			log.Printf("Note ID collision: ~%s/%s", session.Data.Username, id)
+			id = ""
+			continue
+		} else if err != nil {
+			http.Error(w, "Undefined error", http.StatusInternalServerError)
+			log.Printf("Error serving note delete request: %v", err)
+			return
+		}
+		break
+	}
+
+	if id == "" {
+		http.Error(w, "Couldn't assign unique note ID, try again.", http.StatusInternalServerError)
+		return
+	}
 
 	db.Metadata.SetNoteMeta(session.Data.Username, id, NoteMeta{session.Data.Username, PermissionNone})
-	
-	respc := make(chan error)
-	db.storage.Writes <- NoteWrite{
-		user: session.Data.Username,
-		owner: session.Data.Username,
-		id: id,
-		delete: false,
-		content: "",
-		resp: respc,
-	}
-
-	err := <- respc
-
-	if errors.Is(err, ErrNoAccess) {
-		http.Error(w, "Insufficient permissions", http.StatusForbidden)
-		return
-	} else if err != nil {
-		http.Error(w, "Undefined error", http.StatusInternalServerError)
-		log.Printf("Error serving note delete request: %v", err)
-		return
-	}
 
 	w.Write([]byte(id))
 }
 
-func (db *Database) deleteNote(w http.ResponseWriter, r* http.Request) {
+// TODO: Enable after implementing history
+/* func (db *Database) deleteNote(w http.ResponseWriter, r* http.Request) {
 	user := strings.TrimPrefix(chi.URLParam(r, "user"), "~")
 	note := chi.URLParam(r, "id")
 	_, session, _ := GetSessionCtx(r.Context())
@@ -167,4 +183,4 @@ func (db *Database) deleteNote(w http.ResponseWriter, r* http.Request) {
 		log.Printf("Error serving note delete request: %v", err)
 		return
 	}
-}
+} */

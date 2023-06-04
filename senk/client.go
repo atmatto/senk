@@ -38,3 +38,5 @@ func (db *Database) serveMain(w http.ResponseWriter, r *http.Request) {
 		serveApp(w, r)
 	}
 }
+
+// TODO: Bundle data in HTML responses, to avoid additional request and make the app even barely usable without JS.

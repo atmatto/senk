@@ -70,10 +70,14 @@ func main() {
 		r.Post("/new", db.createNote)
 	})
 	
-	r.Route("/{user:~[a-z][a-z0-9_-]+}/{id}", func(r chi.Router) {
-		r.Get("/", db.readNote)
-		r.Put("/", db.writeNote)
-		r.Delete("/", db.deleteNote)
+	r.Route("/{user:~[a-z][a-z0-9_-]+}", func (r chi.Router) {
+		r.Get("/", db.serveMain) // TODO: for anonymous users
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/raw", db.readNote)
+			r.Get("/", db.serveMain) // TODO: for anonymous users
+			r.Put("/", db.writeNote)
+			// r.Delete("/", db.deleteNote)
+		})
 	})
 
 	// Server
