@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -148,7 +149,8 @@ func (db *Database) createNote(w http.ResponseWriter, r* http.Request) {
 		return
 	}
 
-	db.Metadata.SetNoteMeta(session.Data.Username, id, NoteMeta{session.Data.Username, PermissionNone})
+	now := time.Now()
+	db.Metadata.SetNoteMeta(session.Data.Username, id, NoteMeta{session.Data.Username, PermissionNone, now, now, now})
 
 	w.Write([]byte(id))
 }

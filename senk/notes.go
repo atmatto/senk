@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -59,9 +60,12 @@ func (p *PermissionLevel) Limit(l PermissionLevel) PermissionLevel {
 }
 
 type NoteMeta struct {
-	Owner  string
-	Public PermissionLevel
-	// TODO: Modification/creation time, sharing
+	Owner        string
+	Public       PermissionLevel
+	Creation     time.Time // TODO: Show in client
+	Modification time.Time
+	Access       time.Time
+	// TODO: Sharing
 }
 
 func (n *NoteMeta) GetPermissions(user string) PermissionLevel {
@@ -93,6 +97,22 @@ func (m *Metadata) SetNoteMeta(user, id string, meta NoteMeta) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.Notes[fmt.Sprintf("%s/%s", user, id)] = meta
+}
+
+func (m *Metadata) BumpNoteTimers(user, id string, write bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	key := fmt.Sprintf("%s/%s", user, id)
+	meta := m.Notes[key]
+	now := time.Now()
+	if meta.Creation.IsZero() {
+		meta.Creation = now
+	}
+	if write {
+		meta.Modification = now
+	}
+	meta.Access = now
+	m.Notes[key] = meta
 }
 
 type Note struct {
@@ -133,8 +153,10 @@ func (w *NoteWrite) Execute(db *Database) error {
 	} else if !db.Metadata.CheckPermission(w.owner, w.id, w.user, PermissionWrite) {
 		return ErrNoAccess
 	}
-	
-	if w.delete {
+
+	db.Metadata.BumpNoteTimers(w.owner, w.id, true)
+
+	if w.delete { // TODO: Trash
 		err := s.Remove(w.id)
 		if err != nil {
 			return err
@@ -166,14 +188,18 @@ type NoteRead struct {
 	resp  chan NoteReadResp
 }
 
-func (w *NoteRead) Execute(db *Database) (string, error) {
-	if !db.Metadata.CheckPermission(w.owner, w.id, w.user, PermissionRead) {
+func (r *NoteRead) Execute(db *Database) (string, error) {
+	if !db.Metadata.CheckPermission(r.owner, r.id, r.user, PermissionRead) {
 		return "", ErrNoAccess // TODO: What if the note doesn't exist?
 	}
 
-	s := db.storage.UserStores[w.user]
+	if r.user == r.owner {
+		db.Metadata.BumpNoteTimers(r.user, r.id, false)
+	}
 
-	f, err := s.Open(w.id, 0)
+	s := db.storage.UserStores[r.user]
+
+	f, err := s.Open(r.id, 0)
 	if err != nil {
 		return "", err
 	}
