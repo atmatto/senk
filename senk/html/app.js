@@ -1,14 +1,15 @@
 const onLinkClick = (e) => {
     if (e.button === 0) {
-        const path = e.target.pathname
-        console.log("clicked link to " + path)
         e.preventDefault();
+        document.getElementById("status").classList.add("inactive")
+        const path = e.target.pathname
         build(path)
         history.pushState(null, "", path)
     }
 }
 
 window.onpopstate = (e) => {
+    document.getElementById("status").classList.add("inactive")
     build(document.location.pathname)
     e.preventDefault()
 }
@@ -26,6 +27,11 @@ const add = (parent, tag, text = "", props = {}) => {
         parent.appendChild(element)
     }
     return element
+}
+
+const showError = (text) => {
+    document.getElementById("statustext").textContent = text
+    document.getElementById("status").classList.remove("inactive")
 }
 
 const buildIndex = (data) => {
@@ -46,15 +52,17 @@ const getIndex = (user) => {
             .then(resp => {
                 if (!resp.ok) {
                     // TODO: error handling
-                    throw console.error("Couldn't get index", resp)
+                    throw new Error(resp.status + " " + resp.statusText)
                 }
                 return resp.json()
             })
             .then(data => {
                 buildIndex(data)
             })
+            .catch(err => showError("Error getting index: " + err.message))
     } else { // Get the index for the specified user
         // TODO: backend
+        showError("Feature not implemented.")
         add(main, "p", "Viewing index of " + user)
     }
 }
@@ -72,13 +80,14 @@ const getNote = (user, id) => {
         .then(resp => {
             if (!resp.ok) {
                 // TODO: error handling
-                throw console.error("Couldn't get note", resp)
+                throw new Error(resp.status + " " + resp.statusText)
             }
             return resp.text()
         })
         .then(data => {
             buildEditor(path, data)
         })
+        .catch(err => showError("Error getting note: " + err.message))
 }
 
 const build = (path) => {

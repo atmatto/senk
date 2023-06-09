@@ -57,6 +57,10 @@
                 <form method="POST" action="/session/signout"><input type="submit" value="Sign out"></form>
             </div>
             <h2 id="title"></h2>
+            <div id="status" class="inactive">
+                <span id="statustext">Error: Connection lost.</span>
+                <div><button onclick="document.getElementById('status').classList.add('inactive')">Close</button></div>
+            </div>
         </header>
         <main></main>
         <footer></footer>
