@@ -1,6 +1,24 @@
+const onLinkClick = (e) => {
+    if (e.button === 0) {
+        const path = e.target.pathname
+        console.log("clicked link to " + path)
+        e.preventDefault();
+        build(path)
+        history.pushState(null, "", path)
+    }
+}
+
+window.onpopstate = (e) => {
+    build(document.location.pathname)
+    e.preventDefault()
+}
+
 const add = (parent, tag, text = "", props = {}) => {
     const element = document.createElement(tag)
     element.textContent = text
+    if (tag === "a" && props.href?.at?.(0) === "/" && !("onclick" in props)) {
+        element.onclick = onLinkClick
+    }
     for (const prop of Object.entries(props)) {
         element[prop[0]] = prop[1]
     }
@@ -12,14 +30,17 @@ const add = (parent, tag, text = "", props = {}) => {
 
 const buildIndex = (data) => {
     const main = document.getElementsByTagName("main")[0]
+    main.replaceChildren([])
     const list = add(main, "ul")
     for (const note of data) {
-        add(add(list, "li"), "a", "~" + note["Path"], {href: "/~" + note["Path"]})
+        const path = "/~" + note["Path"]
+        add(add(list, "li"), "a", "~" + note["Path"], {href: path})
     }
 }
 
 const getIndex = (user) => {
     const main = document.getElementsByTagName("main")[0]
+    main.replaceChildren([])
     if (user === "") { // Get the index for the current user
         fetch("/api/index")
             .then(resp => {
@@ -44,6 +65,8 @@ const buildEditor = (path, data) => {
 }
 
 const getNote = (user, id) => {
+    const main = document.getElementsByTagName("main")[0]
+    main.replaceChildren([])
     const path = "/" + user + "/" + id
     fetch(path + "/raw")
         .then(resp => {
@@ -58,9 +81,8 @@ const getNote = (user, id) => {
         })
 }
 
-window.onload = () => {
-    const path = document.location.pathname.slice(1).split("/", 2)
-
+const build = (path) => {
+    path = path.slice(1).split("/", 2)
     let elements = 0
     for (const e of path) {
         if (e !== "") {
@@ -86,4 +108,9 @@ window.onload = () => {
         header.classList.remove("notitle")
         break
     }
+}
+
+window.onload = () => {
+    document.getElementById("senk").onclick = onLinkClick
+    build(document.location.pathname)
 }
