@@ -61,9 +61,18 @@ const getIndex = (user) => {
             })
             .catch(err => showError("Error getting index: " + err.message))
     } else { // Get the index for the specified user
-        // TODO: backend
-        showError("Feature not implemented.")
-        add(main, "p", "Viewing index of " + user)
+        fetch("/api/index/" + user)
+            .then(resp => {
+                if (!resp.ok) {
+                    // TODO: error handling
+                    throw new Error(resp.status + " " + resp.statusText)
+                }
+                return resp.json()
+            })
+            .then(data => {
+                buildIndex(data)
+            })
+            .catch(err => showError("Error getting index: " + err.message))
     }
 }
 

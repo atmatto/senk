@@ -31,8 +31,8 @@ func serveApp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (db *Database) serveMain(w http.ResponseWriter, r *http.Request) {
-	_, _, ok := GetSessionCtx(r.Context())
-	if !ok {
+	sid, _ := GetSessionCtx(r.Context())
+	if sid == "" {
 		serveLogin(w, r)
 	} else {
 		serveApp(w, r)

@@ -121,12 +121,15 @@ func (sessions *Sessions) SessionRetrievalMiddleware(next http.Handler) http.Han
 	})
 }
 
-// GetSessionCtx retrieves the session data from the given context and returns the id,
-// session struct, and a boolean argument which is false if the data wasn't found.
-func GetSessionCtx(ctx context.Context) (string, Session, bool) {
+// GetSessionCtx retrieves the session data from the given context
+// and returns the id and session struct.
+func GetSessionCtx(ctx context.Context) (string, Session) {
 	s, ok1 := ctx.Value(ContextKey("session")).(Session)
 	id, ok2 := ctx.Value(ContextKey("sessionId")).(string)
-	return id, s, ok1 && ok2
+	if !ok1 || !ok2 {
+		return "", Session{}
+	}
+	return id, s
 }
 
 // TODO: Is this even needed?

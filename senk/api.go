@@ -16,15 +16,35 @@ import (
 	"github.com/google/uuid"
 )
 
+// use the optional chi URL param "user" to specify whose index to get
+// TODO: Test the parameter
 func (db *Database) getIndex(w http.ResponseWriter, r *http.Request) {
-	_, session, ok := GetSessionCtx(r.Context())
-	if !ok || !session.Data.Authenticated {
-		http.Error(w, "Not authenticated", http.StatusForbidden)
-		return
+	_, session := GetSessionCtx(r.Context())
+	requester := ""
+	if session.Data.Authenticated {
+		requester = session.Data.Username
+	}
+
+	user := strings.TrimPrefix(chi.URLParam(r, "user"), "~")
+	if user == "" {
+		if requester == "" {
+            		// Tried to get the local index when not signed in.
+        		http.Error(w, "Not authenticated", http.StatusForbidden)
+        		return
+		} else {
+    			user = requester
+		}
 	}
 
 	// TODO: Sort by recency
-	notes := db.Metadata.GetUserNotes(session.Data.Username)
+	allNotes := db.Metadata.GetUserNotes(user)
+	notes := []Note{}
+	for _, n := range allNotes {
+		if n.Metadata.GetPermissions(requester) != PermissionNone {
+    			notes = append(notes, n)
+		}
+	}
+
 	bytes, err := json.Marshal(notes)
 	if err != nil {
 		http.Error(w, "Couldn't marshal note index", http.StatusInternalServerError)
@@ -38,7 +58,7 @@ func (db *Database) getIndex(w http.ResponseWriter, r *http.Request) {
 func (db *Database) readNote(w http.ResponseWriter, r *http.Request) {
 	user := strings.TrimPrefix(chi.URLParam(r, "user"), "~")
 	note := chi.URLParam(r, "id")
-	_, session, _ := GetSessionCtx(r.Context())
+	_, session := GetSessionCtx(r.Context())
 	if !session.Data.Authenticated {
 		session.Data.Username = ""
 	}
@@ -70,7 +90,7 @@ func (db *Database) readNote(w http.ResponseWriter, r *http.Request) {
 func (db *Database) writeNote(w http.ResponseWriter, r *http.Request) {
 	user := strings.TrimPrefix(chi.URLParam(r, "user"), "~")
 	note := chi.URLParam(r, "id")
-	_, session, _ := GetSessionCtx(r.Context())
+	_, session := GetSessionCtx(r.Context())
 	if !session.Data.Authenticated {
 		http.Error(w, "Only authenticated users can edit notes", http.StatusForbidden)
 		return
@@ -106,7 +126,7 @@ func (db *Database) writeNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func (db *Database) createNote(w http.ResponseWriter, r* http.Request) {
-	_, session, _ := GetSessionCtx(r.Context())
+	_, session := GetSessionCtx(r.Context())
 	if !session.Data.Authenticated {
 		http.Error(w, "Only authenticated users can create notes", http.StatusForbidden)
 		return

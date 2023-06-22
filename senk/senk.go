@@ -67,6 +67,7 @@ func main() {
 
 	r.Route("/api", func (r chi.Router) {
 		r.Get("/index", db.getIndex)
+		r.Get("/index/{user:~[a-z][a-z0-9_-]+}", db.getIndex)
 		r.Post("/new", db.createNote)
 	})
 	

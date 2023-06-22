@@ -13,8 +13,8 @@ func (db *Database) signIn(w http.ResponseWriter, r *http.Request) {
 	password := r.PostFormValue("password")
 	if username != "" && password != "" {
 		if db.Users.CheckPassword(username, password) {
-			sid, _, ok := GetSessionCtx(r.Context())
-			if ok {
+			sid, _ := GetSessionCtx(r.Context())
+			if sid != "" {
 				db.Sessions.InvalidateSession(sid)
 			}
 			sid = db.Sessions.NewSession()
@@ -45,8 +45,8 @@ func (db *Database) signIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (db *Database) signOut(w http.ResponseWriter, r *http.Request) {
-	sid, _, ok := GetSessionCtx(r.Context())
-	if !ok {
+	sid, _ := GetSessionCtx(r.Context())
+	if sid == "" {
 		w.WriteHeader(http.StatusNotFound) // TODO: status
 		return
 	}
