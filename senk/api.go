@@ -54,6 +54,31 @@ func (db *Database) getIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
+func (db *Database) getTrash(w http.ResponseWriter, r *http.Request) {
+	_, session := GetSessionCtx(r.Context())
+	if !session.Data.Authenticated {
+		http.Error(w, "Only authenticated users can edit notes", http.StatusForbidden)
+		return
+	}
+
+	notes := db.Metadata.GetUserTrash(session.Data.Username)
+	/* TODO: Show shared documents in trash?
+	notes := []Note{}
+	for _, n := range allNotes {
+		if n.Metadata.GetPermissions(session.Data.Username) != PermissionNone {
+    			notes = append(notes, n)
+		}
+	}*/
+
+	bytes, err := json.Marshal(notes)
+	if err != nil {
+		http.Error(w, "Couldn't marshal trash index", http.StatusInternalServerError)
+		log.Printf("Error marshalling trash index: %v", err)
+		return
+	}
+	w.Write(bytes)
+}
+
 // expects following chi URL params: user, id
 func (db *Database) readNote(w http.ResponseWriter, r *http.Request) {
 	user := strings.TrimPrefix(chi.URLParam(r, "user"), "~")
@@ -81,6 +106,39 @@ func (db *Database) readNote(w http.ResponseWriter, r *http.Request) {
 	} else if resp.err != nil {
 		http.Error(w, "Undefined error", http.StatusInternalServerError)
 		log.Printf("Error serving file read request: %v", resp.err)
+		return
+	}
+	w.Write([]byte(resp.v))
+}
+
+// expects following chi URL params: user, id
+func (db *Database) readTrashNote(w http.ResponseWriter, r *http.Request) {
+	user := strings.TrimPrefix(chi.URLParam(r, "user"), "~")
+	note := chi.URLParam(r, "id")
+	_, session := GetSessionCtx(r.Context())
+	if !session.Data.Authenticated {
+		session.Data.Username = ""
+	}
+
+	respc := make(chan NoteReadResp)
+	db.storage.Reads <- NoteRead{
+		user: session.Data.Username,
+		owner: user,
+		id: note,
+		fromTrash: true,
+		resp: respc,
+	}
+
+	resp := <- respc
+	if errors.Is(resp.err, os.ErrNotExist) {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	} else if errors.Is(resp.err, ErrNoAccess) {
+		http.Error(w, "Insufficient permissions", http.StatusForbidden)
+		return
+	} else if resp.err != nil {
+		http.Error(w, "Undefined error", http.StatusInternalServerError)
+		log.Printf("Error serving trash file read request: %v", resp.err)
 		return
 	}
 	w.Write([]byte(resp.v))
@@ -170,16 +228,16 @@ func (db *Database) createNote(w http.ResponseWriter, r* http.Request) {
 	}
 
 	now := time.Now()
-	db.Metadata.SetNoteMeta(session.Data.Username, id, NoteMeta{session.Data.Username, PermissionNone, now, now, now})
+	db.Metadata.SetNoteMeta(session.Data.Username, id, NoteMeta{session.Data.Username, PermissionNone, now, now, now, false})
 
 	w.Write([]byte(id))
 }
 
-// TODO: Enable after implementing history
-/* func (db *Database) deleteNote(w http.ResponseWriter, r* http.Request) {
+// expects following chi URL params: user, id
+func (db *Database) deleteNote(w http.ResponseWriter, r* http.Request) {
 	user := strings.TrimPrefix(chi.URLParam(r, "user"), "~")
 	note := chi.URLParam(r, "id")
-	_, session, _ := GetSessionCtx(r.Context())
+	_, session := GetSessionCtx(r.Context())
 	if !session.Data.Authenticated {
 		http.Error(w, "Only authenticated users can delete notes", http.StatusForbidden)
 		return
@@ -205,4 +263,6 @@ func (db *Database) createNote(w http.ResponseWriter, r* http.Request) {
 		log.Printf("Error serving note delete request: %v", err)
 		return
 	}
-} */
+}
+
+// TODO: History

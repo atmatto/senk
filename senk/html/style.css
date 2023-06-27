@@ -86,12 +86,13 @@ button:hover, input[type="submit"]:hover {
     }
 }
 
-#toolbar a {
+#toolbar h1 a {
     color: inherit;
     text-decoration: none;
 }
 
-#toolbar form input[type="submit"] {
+#toolbar form input[type="submit"], #toolbar a {
+    color: inherit;
     background: none;
     border: none;
     margin: 0;
@@ -99,7 +100,7 @@ button:hover, input[type="submit"]:hover {
     text-decoration: underline;
 }
 
-#toolbar form input[type="submit"]:hover {
+#toolbar form input[type="submit"]:hover, #toolbar a:hover {
     text-decoration: none;
     cursor: pointer;
 }
@@ -136,4 +137,41 @@ header h2 {
 
 #status button:hover {
     background-color: #f8f8f8;
+}
+
+#details {
+    display: block;
+    margin: 0 0 16px auto;
+    width: max-content;
+    user-select: none;
+}
+
+#details summary {
+    cursor: pointer;
+}
+
+#details ul {
+    position: absolute;
+    margin-top: 8px;
+    border-radius: 4px;
+    padding: 0;
+    list-style: none;
+    border: 1px solid #999;
+    border-bottom: none;
+}
+
+#details button {
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid #999;
+}
+
+#details li:first-child button {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+#details li:last-child button {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
 }

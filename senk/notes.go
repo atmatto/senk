@@ -65,6 +65,7 @@ type NoteMeta struct {
 	Creation     time.Time // TODO: Show in client
 	Modification time.Time
 	Access       time.Time
+	Deleted      bool
 	// TODO: Sharing
 }
 
@@ -115,21 +116,55 @@ func (m *Metadata) BumpNoteTimers(user, id string, write bool) {
 	m.Notes[key] = meta
 }
 
+func (m *Metadata) SetDeleted(user, id string, deleted bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	key := fmt.Sprintf("%s/%s", user, id)
+	meta := m.Notes[key]
+	meta.Deleted = deleted
+	m.Notes[key] = meta
+}
+
+func (m *Metadata) IsDeleted(user, id string) bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.Notes[fmt.Sprintf("%s/%s", user, id)].Deleted
+}
+
 type Note struct {
 	Path     string
 	Metadata NoteMeta
 }
 
-func (m *Metadata) GetUserNotes(user string) (notes []Note) {
+func (m *Metadata) GetUserNotes(user string) []Note {
 	// TODO: Maybe make this more efficient
+	notes := make([]Note, 0)
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	for k, n := range m.Notes {
+		if n.Deleted {
+			continue
+		}
 		if b, _, _ := strings.Cut(k, "/"); b == user {
 			notes = append(notes, Note{k, n})
 		}
 	}
-	return
+	return notes
+}
+
+func (m *Metadata) GetUserTrash(user string) []Note {
+	notes := make([]Note, 0)
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	for k, n := range m.Notes {
+		if !n.Deleted {
+			continue
+		}
+		if b, _, _ := strings.Cut(k, "/"); b == user {
+			notes = append(notes, Note{k, n})
+		}
+	}
+	return notes
 }
 
 type NoteWrite struct {
@@ -156,11 +191,8 @@ func (w *NoteWrite) Execute(db *Database) error {
 
 	db.Metadata.BumpNoteTimers(w.owner, w.id, true)
 
-	if w.delete { // TODO: Trash
-		err := s.Remove(w.id)
-		if err != nil {
-			return err
-		}
+	if w.delete {
+		db.Metadata.SetDeleted(w.owner, w.id, true)
 		return nil
 	}
 
@@ -182,14 +214,15 @@ type NoteReadResp struct {
 }
 
 type NoteRead struct {
-	user  string // user performing the action
-	owner string // note owner
-	id    string // note id
-	resp  chan NoteReadResp
+	user      string // user performing the action
+	owner     string // note owner
+	id        string // note id
+	fromTrash bool   // read from trash
+	resp      chan NoteReadResp
 }
 
 func (r *NoteRead) Execute(db *Database) (string, error) {
-	if !db.Metadata.CheckPermission(r.owner, r.id, r.user, PermissionRead) {
+	if !db.Metadata.CheckPermission(r.owner, r.id, r.user, PermissionRead) || db.Metadata.IsDeleted(r.owner, r.id) != r.fromTrash {
 		return "", ErrNoAccess // TODO: What if the note doesn't exist?
 	}
 
