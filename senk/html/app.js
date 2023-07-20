@@ -98,6 +98,24 @@ const getTrash = () => {
         .catch(err => showError("Error getting index: " + err.message))
 }
 
+const getTrashNote = (user, id) => {
+    const main = document.getElementsByTagName("main")[0]
+    main.replaceChildren([])
+    const path = "/trash/" + user + "/" + id
+    fetch(path + "/raw")
+        .then(resp => {
+            if (!resp.ok) {
+                // TODO: error handling
+                throw new Error(resp.status + " " + resp.statusText)
+            }
+            return resp.text()
+        })
+        .then(data => {
+            buildEditor(path, data) // TODO: Read-only, restore from trash
+        })
+        .catch(err => showError("Error getting note: " + err.message))
+}
+
 const buildNoteDetails = (parent, path) => {
     const details = add(parent, "details", "", {id: "details"})
     add(details, "summary", "Manage note")
@@ -113,6 +131,7 @@ const buildNoteDetails = (parent, path) => {
             })
             .catch(err => showError("Error deleting note: " + err.message))
     }})
+    // TODO: Note history
 }
 
 const buildEditor = (path, data) => {
@@ -159,9 +178,9 @@ const build = (path) => {
             header.classList.remove("notitle")
             break
         case 2:
-            // TODO: Deleted note viewer
-            showError("Error: Not implemented")
-            header.classList.add("notitle")
+            getTrashNote(path[1], path[2])
+            title.replaceChildren(add(null, "span", "(trash) "), add(null, "a", path[1], {href: "/"+path[1]}), add(null, "span", "/"+path[2]))
+            header.classList.remove("notitle")
             break
         }
     } else {
