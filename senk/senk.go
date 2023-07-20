@@ -60,25 +60,25 @@ func main() {
 
 	r.Post("/session/signin", db.signIn)
 	r.Post("/session/signout", db.signOut)
-	
+
 	r.Get("/", db.serveMain)
 	r.Get("/app.js", serveStatic("app.js", "text/javascript"))
 	r.Get("/style.css", serveStatic("style.css", "text/css"))
 
-	r.Route("/api", func (r chi.Router) {
+	r.Route("/api", func(r chi.Router) {
 		r.Get("/index", db.getIndex)
 		r.Get("/index/{user:~[a-z][a-z0-9_-]+}", db.getIndex)
 		r.Get("/trash", db.getTrash)
 		r.Post("/new", db.createNote)
 	})
 
-	r.Route("/trash", func (r chi.Router) {
+	r.Route("/trash", func(r chi.Router) {
 		r.Get("/", db.serveMain)
 		r.Get("/{user:~[a-z][a-z0-9_-]+}/{id}", db.serveMain)
 		r.Get("/{user:~[a-z][a-z0-9_-]+}/{id}/raw", db.readTrashNote)
 	})
 
-	r.Route("/{user:~[a-z][a-z0-9_-]+}", func (r chi.Router) {
+	r.Route("/{user:~[a-z][a-z0-9_-]+}", func(r chi.Router) {
 		r.Get("/", db.serveMain) // TODO: for anonymous users
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/raw", db.readNote)

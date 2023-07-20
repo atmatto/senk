@@ -182,6 +182,6 @@ func (users *Users) DeleteUser(username string) error {
 	users.List = users.List[:last]
 
 	// TODO: Cleanup everything, maybe leaving some backup
-	
+
 	return nil
 }

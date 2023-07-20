@@ -28,11 +28,11 @@ func (db *Database) getIndex(w http.ResponseWriter, r *http.Request) {
 	user := strings.TrimPrefix(chi.URLParam(r, "user"), "~")
 	if user == "" {
 		if requester == "" {
-            		// Tried to get the local index when not signed in.
-        		http.Error(w, "Not authenticated", http.StatusForbidden)
-        		return
+			// Tried to get the local index when not signed in.
+			http.Error(w, "Not authenticated", http.StatusForbidden)
+			return
 		} else {
-    			user = requester
+			user = requester
 		}
 	}
 
@@ -41,7 +41,7 @@ func (db *Database) getIndex(w http.ResponseWriter, r *http.Request) {
 	notes := []Note{}
 	for _, n := range allNotes {
 		if n.Metadata.GetPermissions(requester) != PermissionNone {
-    			notes = append(notes, n)
+			notes = append(notes, n)
 		}
 	}
 
@@ -63,12 +63,12 @@ func (db *Database) getTrash(w http.ResponseWriter, r *http.Request) {
 
 	notes := db.Metadata.GetUserTrash(session.Data.Username)
 	/* TODO: Show shared documents in trash?
-	notes := []Note{}
-	for _, n := range allNotes {
-		if n.Metadata.GetPermissions(session.Data.Username) != PermissionNone {
-    			notes = append(notes, n)
-		}
-	}*/
+		notes := []Note{}
+		for _, n := range allNotes {
+			if n.Metadata.GetPermissions(session.Data.Username) != PermissionNone {
+	    			notes = append(notes, n)
+			}
+		}*/
 
 	bytes, err := json.Marshal(notes)
 	if err != nil {
@@ -90,13 +90,13 @@ func (db *Database) readNote(w http.ResponseWriter, r *http.Request) {
 
 	respc := make(chan NoteReadResp)
 	db.storage.Reads <- NoteRead{
-		user: session.Data.Username,
+		user:  session.Data.Username,
 		owner: user,
-		id: note,
-		resp: respc,
+		id:    note,
+		resp:  respc,
 	}
 
-	resp := <- respc
+	resp := <-respc
 	if errors.Is(resp.err, os.ErrNotExist) {
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
@@ -122,14 +122,14 @@ func (db *Database) readTrashNote(w http.ResponseWriter, r *http.Request) {
 
 	respc := make(chan NoteReadResp)
 	db.storage.Reads <- NoteRead{
-		user: session.Data.Username,
-		owner: user,
-		id: note,
+		user:      session.Data.Username,
+		owner:     user,
+		id:        note,
 		fromTrash: true,
-		resp: respc,
+		resp:      respc,
 	}
 
-	resp := <- respc
+	resp := <-respc
 	if errors.Is(resp.err, os.ErrNotExist) {
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
@@ -163,15 +163,15 @@ func (db *Database) writeNote(w http.ResponseWriter, r *http.Request) {
 
 	respc := make(chan error)
 	db.storage.Writes <- NoteWrite{
-		user: session.Data.Username,
-		owner: user,
-		id: note,
-		delete: false,
+		user:    session.Data.Username,
+		owner:   user,
+		id:      note,
+		delete:  false,
 		content: string(bytes),
-		resp: respc,
+		resp:    respc,
 	}
 
-	err = <- respc
+	err = <-respc
 
 	if errors.Is(err, ErrNoAccess) {
 		http.Error(w, "Insufficient permissions", http.StatusForbidden)
@@ -183,7 +183,7 @@ func (db *Database) writeNote(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (db *Database) createNote(w http.ResponseWriter, r* http.Request) {
+func (db *Database) createNote(w http.ResponseWriter, r *http.Request) {
 	_, session := GetSessionCtx(r.Context())
 	if !session.Data.Authenticated {
 		http.Error(w, "Only authenticated users can create notes", http.StatusForbidden)
@@ -196,16 +196,16 @@ func (db *Database) createNote(w http.ResponseWriter, r* http.Request) {
 
 		respc := make(chan error)
 		db.storage.Writes <- NoteWrite{
-			user: session.Data.Username,
-			owner: session.Data.Username,
-			id: id,
-			create: true,
-			delete: false,
+			user:    session.Data.Username,
+			owner:   session.Data.Username,
+			id:      id,
+			create:  true,
+			delete:  false,
 			content: "",
-			resp: respc,
+			resp:    respc,
 		}
 
-		err := <- respc
+		err := <-respc
 
 		if errors.Is(err, ErrNoAccess) {
 			http.Error(w, "Insufficient permissions", http.StatusForbidden)
@@ -234,7 +234,7 @@ func (db *Database) createNote(w http.ResponseWriter, r* http.Request) {
 }
 
 // expects following chi URL params: user, id
-func (db *Database) deleteNote(w http.ResponseWriter, r* http.Request) {
+func (db *Database) deleteNote(w http.ResponseWriter, r *http.Request) {
 	user := strings.TrimPrefix(chi.URLParam(r, "user"), "~")
 	note := chi.URLParam(r, "id")
 	_, session := GetSessionCtx(r.Context())
@@ -245,15 +245,15 @@ func (db *Database) deleteNote(w http.ResponseWriter, r* http.Request) {
 
 	respc := make(chan error)
 	db.storage.Writes <- NoteWrite{
-		user: session.Data.Username,
-		owner: user,
-		id: note,
-		delete: true,
+		user:    session.Data.Username,
+		owner:   user,
+		id:      note,
+		delete:  true,
 		content: "",
-		resp: respc,
+		resp:    respc,
 	}
 
-	err := <- respc
+	err := <-respc
 
 	if errors.Is(err, ErrNoAccess) {
 		http.Error(w, "Insufficient permissions", http.StatusForbidden)

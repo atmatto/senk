@@ -2,8 +2,8 @@ package main
 
 import (
 	"embed"
-	"net/http"
 	"log"
+	"net/http"
 )
 
 //go:embed html/*
