@@ -1,4 +1,39 @@
+let editorState = {
+    modified: false, // TODO: Mark unsaved changes
+    intervalID: 0,
+}
+
+const syncEditor = () => {
+    if (editorState.modified) {
+        let data = document.getElementById("editor")?.value
+        if (data === undefined) {
+            console.error("Editor data is undefined")
+            return
+        }
+        editorState.modified = false
+        fetch(document.URL, {method: "PUT", body: data})
+            .then(resp => {
+                if (!resp.ok) {
+                    editorState.modified = true
+                    // TODO: error handling
+                    throw new Error(resp.status + " " + resp.statusText)
+                }
+            })
+            .catch(err => showError("Error saving note: " + err.message))
+    }
+}
+
+const cleanupEditor = () => {
+    syncEditor()
+    editorState.modified = false
+    if (editorState.intervalID !== 0) {
+        clearInterval(editorState.intervalID)
+    }
+    editorState.intervalID = 0
+}
+
 const goto = (path) => {
+    cleanupEditor()
     document.getElementById("status").classList.add("inactive")
     build(path)
     history.pushState(null, "", path)
@@ -12,6 +47,7 @@ const onLinkClick = (e) => {
 }
 
 window.onpopstate = (e) => {
+    cleanupEditor()
     document.getElementById("status").classList.add("inactive")
     build(document.location.pathname)
     e.preventDefault()
@@ -37,10 +73,10 @@ const showError = (text) => {
     document.getElementById("status").classList.remove("inactive")
 }
 
-const buildIndex = (data, trash = false) => {
+const buildIndex = (data, trash = false, side = false) => {
     const main = document.getElementsByTagName("main")[0]
-    main.replaceChildren([])
-    const list = add(main, "ul")
+    // main.replaceChildren([])
+    const list = add(main, "ul", "", { className: "index" + (side ? " side" : "")})
     for (const note of data) {
         const path = (trash ? "/trash" : "") + "/~" + note["Path"]
         add(add(list, "li"), "a", "~" + note["Path"], {href: path})
@@ -116,28 +152,27 @@ const getTrashNote = (user, id) => {
         .catch(err => showError("Error getting note: " + err.message))
 }
 
-const buildNoteDetails = (parent, path) => {
-    const details = add(parent, "details", "", {id: "details"})
-    add(details, "summary", "Manage note")
-    const list = add(details, "ul")
-    add(add(list, "li"), "button", "Delete", {onclick: () => {
-        fetch(path, {method: "DELETE"})
-            .then(resp => {
-                if (!resp.ok) {
-                    throw new Error(resp.status + " " + resp.statusText)
-                }
-                goto("/trash")
-                showError("Note deleted")
-            })
-            .catch(err => showError("Error deleting note: " + err.message))
-    }})
-    // TODO: Note history
-}
-
 const buildEditor = (path, data) => {
     const main = document.getElementsByTagName("main")[0]
-    buildNoteDetails(main, path)
-    /* const editor = */ add(main, "textarea", data)
+    fetch("/api/index")
+        .then(resp => {
+            if (!resp.ok) {
+                // TODO: error handling
+                throw new Error(resp.status + " " + resp.statusText)
+            }
+            return resp.json()
+        })
+        .then(data => {
+            buildIndex(data, false, true)
+        })
+        .catch(err => showError("Error getting index: " + err.message))
+    const editor =  add(main, "textarea", data, {id: "editor"})
+
+    cleanupEditor()
+    editorState.intervalID = setInterval(syncEditor, 5000)
+    editor.oninput = () => {
+        editorState.modified = true
+    }
 }
 
 const getNote = (user, id) => {
@@ -187,7 +222,7 @@ const build = (path) => {
         switch (elements) {
         case 0:
             getIndex("")
-            header.classList.add("notitle")
+            title.replaceChildren([])
             break
         case 1:
             getIndex(path[0])

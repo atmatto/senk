@@ -40,9 +40,10 @@
             textarea {
                 box-sizing: border-box;
                 width: 100%;
-                height: 512px;
+                height: 800px;
                 resize: none;
                 border: 1px solid #ccc;
+                border-radius: 4px;
                 font: inherit;
                 padding: 10px;
                 margin: 0;
@@ -50,19 +51,21 @@
         </style>
     </head>
     <body>
-        <header class="notitle">
+        <header>
             <div id="toolbar">
-                <h1><a href="/" id="senk">senk</a></h1>
-                <form method="POST" action="/api/new"><input type="submit" value="Create new note"></form>
-                <form method="POST" action="/session/signout"><input type="submit" value="Sign out"></form>
+                <a href="/" id="senk" class="button">senk</a>
+                <h1 id="title"></h1>
+                <button class="right">pin</button>
+                <button>delete</button>
+                <!-- <button>share</button>
+                <button>history</button> -->
+                <button>new</button>
             </div>
-            <h2 id="title"></h2>
             <div id="status" class="inactive">
                 <span id="statustext">Error</span>
                 <div><button onclick="document.getElementById('status').classList.add('inactive')">Close</button></div>
             </div>
         </header>
         <main></main>
-        <footer></footer>
     </body>
 </html>
