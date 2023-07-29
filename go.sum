@@ -1,7 +1,7 @@
 github.com/alexedwards/argon2id v0.0.0-20211130144151-3585854a6387 h1:loy0fjI90vF44BPW4ZYOkE3tDkGTy7yHURusOJimt+I=
 github.com/alexedwards/argon2id v0.0.0-20211130144151-3585854a6387/go.mod h1:GuR5j/NW7AU7tDAQUDGCtpiPxWIOy/c3kiRDnlwiCHc=
-github.com/atmatto/atylar v0.2.0 h1:tdf2OABYfL2fDODM3IUfKP8IEFPUae/GxBg5Tf5cnVw=
-github.com/atmatto/atylar v0.2.0/go.mod h1:tFu7LrSQixW9J9l4FAdS01neZkdX6T+KVZMG++k1dNM=
+github.com/atmatto/atylar v0.2.3 h1:HAXFQdhj1FxC+Yum34ovLSnD0gItSxFVUjJ+SdprkBs=
+github.com/atmatto/atylar v0.2.3/go.mod h1:tFu7LrSQixW9J9l4FAdS01neZkdX6T+KVZMG++k1dNM=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-chi/chi/v5 v5.0.8 h1:lD+NLqFcAi1ovnVZpsnObHGW4xb4J8lNmoYVfECH1Y0=

@@ -200,6 +200,7 @@ func (w *NoteWrite) Execute(db *Database) error {
 	if err != nil {
 		return err
 	}
+	db.storage.UserStores[w.user] = s
 	_, err = f.WriteString(w.content)
 	if err != nil {
 		return err
