@@ -36,7 +36,7 @@
                 outline: none;
                 vertical-align: top;
             } */
-            
+
             textarea {
                 box-sizing: border-box;
                 width: 100%;
@@ -55,11 +55,14 @@
             <div id="toolbar">
                 <a href="/" id="senk" class="button">senk</a>
                 <h1 id="title"></h1>
-                <button class="right">pin</button>
-                <button>delete</button>
-                <!-- <button>share</button>
-                <button>history</button> -->
-                <button>new</button>
+                <div id="buttons">
+                    <!-- <button id="pinbtn">pin</button> -->
+                    <button id="deletebtn">delete</button>
+                    <!-- <button id="sharebtn">share</button>
+                    <button id="historybtn">history</button> -->
+                    <button id="rawbtn">raw</button>
+                    <button id="newbtn" class="alwaysbtn">new</button>
+                </div>
             </div>
             <div id="status" class="inactive">
                 <span id="statustext">Error</span>

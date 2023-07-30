@@ -32,11 +32,15 @@ const cleanupEditor = () => {
     editorState.intervalID = 0
 }
 
-const goto = (path) => {
+const goto = (path, internal = true) => {
     cleanupEditor()
-    document.getElementById("status").classList.add("inactive")
-    build(path)
-    history.pushState(null, "", path)
+    if (!internal) {
+        document.location = path
+    } else {
+        document.getElementById("status").classList.add("inactive")
+        build(path)
+        history.pushState(null, "", path)
+    }
 }
 
 const onLinkClick = (e) => {
@@ -205,17 +209,18 @@ const build = (path) => {
     const header = document.getElementsByTagName("header")[0]
     const title = document.getElementById("title")
     if (path[0] === "trash") {
-        console.log(elements, path)
         switch (elements - 1) {
         case 0:
             getTrash()
             title.replaceChildren(add(null, "span", "Trash"))
             header.classList.remove("notitle")
+            document.body.className = "index"
             break
         case 2:
             getTrashNote(path[1], path[2])
             title.replaceChildren(add(null, "span", "(trash) "), add(null, "a", path[1], {href: "/"+path[1]}), add(null, "span", "/"+path[2]))
             header.classList.remove("notitle")
+            document.body.className = "trashnote"
             break
         }
     } else {
@@ -223,16 +228,44 @@ const build = (path) => {
         case 0:
             getIndex("")
             title.replaceChildren([])
+            document.body.className = "index"
             break
         case 1:
             getIndex(path[0])
             title.replaceChildren(add(null, "span", path[0]))
             header.classList.remove("notitle")
+            document.body.className = "index"
             break
         case 2:
             getNote(path[0], path[1])
             title.replaceChildren(add(null, "a", path[0], {href: "/"+path[0]}), add(null, "span", "/"+path[1]))
             header.classList.remove("notitle")
+            document.body.className = "note"
+            document.getElementById("rawbtn").onclick = () => {
+                goto(document.location + "/raw", false)
+            }
+            document.getElementById("deletebtn").onclick = () => {
+                fetch(document.location, {method: "DELETE"})
+                    .then(resp => {
+                        if (!resp.ok) {
+                            throw new Error(resp.status + " " + resp.statusText)
+                        }
+                        goto("/trash")
+                        showError("Note deleted")
+                    })
+                    .catch(err => showError("Error deleting note: " + err.message))
+            }
+            document.getElementById("newbtn").onclick = () => {
+                fetch("/api/new", {method: "POST"})
+                    .then(resp => {
+                        if (!resp.ok) {
+                            throw new Error(resp.status + " " + resp.statusText)
+                        }
+                        return resp.text()
+                    })
+                    .then(loc => goto((new URL(loc, document.location).pathname)))
+                    .catch(err => showError("Error creating note: " + err.message))
+            }
             break
         }
     }

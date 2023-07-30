@@ -17,9 +17,9 @@ body > div, body > header, body > main, body > footer {
     padding: 20px;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 600px) {
     body > div, body > header, body > main, body > footer {
-        padding: 16px 24px;
+        padding: 10px;
     }
 }
 
@@ -83,8 +83,16 @@ button:hover:active, input[type="submit"]:hover:active, .button:hover:active {
     align-items: baseline;
 }
 
-#toolbar .right {
+#buttons {
     margin-left: auto;
+}
+
+#buttons *:not(.alwaysbtn) {
+    display: none;
+}
+
+.note #buttons *, .trashnote #historybtn {
+    display: initial;
 }
 
 #title {
@@ -114,6 +122,20 @@ main {
 main > *:not(.side) {
     grid-column: 2;
     grid-row: 1;
+}
+
+@media (max-width: 900px) {
+	main {
+		grid-template-columns: auto;
+	}
+
+	main > *:not(.side) {
+		grid-column: 1;
+	}
+
+	main > .side {
+		display: none;
+	}
 }
 
 ul {
