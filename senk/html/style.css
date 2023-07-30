@@ -42,10 +42,12 @@ form label {
 }
 
 form input[type="text"], form input[type="password"] {
+    box-sizing: border-box;
     background-color: white;
     padding: 6px 8px;
-    border: 1px solid #aaa;
-    border-radius: 2px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font: inherit;
 }
 
 form input[type="submit"] {
@@ -114,6 +116,23 @@ button:hover:active, input[type="submit"]:hover:active, .button:hover:active {
     display: none;
 }
 
+#name {
+    display: none;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: white;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font: inherit;
+    margin-top: 10px;
+}
+
+.note #name {
+    display: unset;
+}
+
 main {
     display: grid;
     grid-template-columns: 36ch auto;
@@ -125,17 +144,17 @@ main > *:not(.side) {
 }
 
 @media (max-width: 900px) {
-	main {
-		grid-template-columns: auto;
-	}
+    main {
+        grid-template-columns: auto;
+    }
 
-	main > *:not(.side) {
-		grid-column: 1;
-	}
+    main > *:not(.side) {
+        grid-column: 1;
+    }
 
-	main > .side {
-		display: none;
-	}
+    main > .side {
+        display: none;
+    }
 }
 
 ul {
