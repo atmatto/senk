@@ -1,181 +1,181 @@
 * {
-    font-family: "Arial";
+	font-family: "Arial";
 }
 
 body {
-    margin: 0;
-    /* background-color: #f8f9fa; */
-    font-size: 15px;
+	margin: 0;
+	/* background-color: #f8f9fa; */
+	font-size: 15px;
 }
 
 a:visited {
-    color: blue;
+	color: blue;
 }
 
 body > div, body > header, body > main, body > footer {
-    margin: 0;
-    padding: 20px;
+	margin: 0;
+	padding: 20px;
 }
 
 @media (max-width: 600px) {
-    body > div, body > header, body > main, body > footer {
-        padding: 10px;
-    }
+	body > div, body > header, body > main, body > footer {
+		padding: 10px;
+	}
 }
 
 h1, h2, h3 {
-    margin: 0;
-    padding: 0;
-    font-weight: normal;
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
 }
 
 form * {
-    display: block;
+	display: block;
 }
 
 form > div {
-    margin-bottom: 15px;
+	margin-bottom: 15px;
 }
 
 form label {
-    margin-bottom: 8px;
+	margin-bottom: 8px;
 }
 
 form input[type="text"], form input[type="password"] {
-    box-sizing: border-box;
-    background-color: white;
-    padding: 6px 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font: inherit;
+	box-sizing: border-box;
+	background-color: white;
+	padding: 6px 8px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font: inherit;
 }
 
 form input[type="submit"] {
-    margin-top: 30px;
+	margin-top: 30px;
 }
 
 button, input[type="submit"], .button {
-    font-size: 13px;
-    border: 1px solid #8f8f9d;
-    background-color: #e9e9ed;
-    padding: 2px 6px;
-    border-radius: 4px;
-    text-decoration: none;
-    color: black !important;
-    cursor: pointer;
-    user-select: none;
+	font-size: 13px;
+	border: 1px solid #8f8f9d;
+	background-color: #e9e9ed;
+	padding: 2px 6px;
+	border-radius: 4px;
+	text-decoration: none;
+	color: black !important;
+	cursor: pointer;
+	user-select: none;
 }
 
 button:hover, input[type="submit"]:hover, .button:hover {
-    background-color: #d0d0d7;
-    border-color: #676774;
+	background-color: #d0d0d7;
+	border-color: #676774;
 }
 
 button:hover:active, input[type="submit"]:hover:active, .button:hover:active {
-    background-color: #b1b1b9;
-    border-color: #484851;
+	background-color: #b1b1b9;
+	border-color: #484851;
 }
 
 #toolbar {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 6px;
-    align-items: baseline;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 6px;
+	align-items: baseline;
 }
 
 #buttons {
-    margin-left: auto;
+	margin-left: auto;
 }
 
 #buttons *:not(.alwaysbtn) {
-    display: none;
+	display: none;
 }
 
 .note #buttons *, .trashnote #historybtn {
-    display: initial;
+	display: initial;
 }
 
 #title {
-    font-size: inherit;
+	font-size: inherit;
 }
 
 #status {
-    background-color: #eee;
-    border: 1px solid #e88;
-    border-radius: 2px;
-    padding: 15px;
-    margin-top: 30px;
-    display: grid;
-    grid-template-columns: auto min-content;
-    gap: 15px;
+	background-color: #eee;
+	border: 1px solid #e88;
+	border-radius: 2px;
+	padding: 15px;
+	margin-top: 30px;
+	display: grid;
+	grid-template-columns: auto min-content;
+	gap: 15px;
 }
 
 #status.inactive {
-    display: none;
+	display: none;
 }
 
 #name {
-    display: none;
-    padding: 10px;
-    width: 100%;
-    box-sizing: border-box;
-    background-color: white;
-    padding: 6px 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font: inherit;
-    margin-top: 10px;
+	display: none;
+	padding: 10px;
+	width: 100%;
+	box-sizing: border-box;
+	background-color: white;
+	padding: 6px 8px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font: inherit;
+	margin-top: 10px;
 }
 
 .note #name {
-    display: unset;
+	display: unset;
 }
 
 main {
-    display: grid;
-    grid-template-columns: 36ch auto;
+	display: grid;
+	grid-template-columns: 36ch auto;
 }
 
 main > *:not(.side) {
-    grid-column: 2;
-    grid-row: 1;
+	grid-column: 2;
+	grid-row: 1;
 }
 
 @media (max-width: 900px) {
-    main {
-        grid-template-columns: auto;
-    }
+	main {
+		grid-template-columns: auto;
+	}
 
-    main > *:not(.side) {
-        grid-column: 1;
-    }
+	main > *:not(.side) {
+		grid-column: 1;
+	}
 
-    main > .side {
-        display: none;
-    }
+	main > .side {
+		display: none;
+	}
 }
 
 ul {
-    margin: 0;
+	margin: 0;
 }
 
 .index {
-    list-style: none;
-    padding: 0;
-    user-select: none;
+	list-style: none;
+	padding: 0;
+	user-select: none;
 }
 
 .index li {
-    margin-bottom: 5px;
+	margin-bottom: 5px;
 }
 
 .index a {
-    color: black;
-    text-decoration: none;
+	color: black;
+	text-decoration: none;
 }
 
 .index a:hover {
-    text-decoration: underline;
+	text-decoration: underline;
 }

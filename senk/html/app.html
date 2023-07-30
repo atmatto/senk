@@ -1,75 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>senk</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta charset="UTF-8">
-        <script type="module" src="/app.js"></script>
-        <link rel="stylesheet" href="/style.css">
-        <style>
-            /*ul {
-                list-style: disc;
-            }
+	<head>
+		<title>senk</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta charset="UTF-8">
+		<script type="module" src="/app.js"></script>
+		<link rel="stylesheet" href="/style.css">
+		<style>
+			/*ul {
+				list-style: disc;
+			}
 
-            ul:not(main > ul) {
-                margin-left: -12px;
-                border-left: 1px solid #ddd;
-                transition: border-left-color 100ms;
-            }
+			ul:not(main > ul) {
+				margin-left: -12px;
+				border-left: 1px solid #ddd;
+				transition: border-left-color 100ms;
+			}
 
-            main > ul {
-                margin-left: -16px;
-            }
+			main > ul {
+				margin-left: -16px;
+			}
 
-            ul:hover {
-                border-left-color: #aaa;
-            }
+			ul:hover {
+				border-left-color: #aaa;
+			}
 
-            /* textarea {
-                display: inline;
-                width: 100%;
-                resize: none;
-                border: none;
-                font: inherit;
-                padding: 0;
-                margin: 0;
-                outline: none;
-                vertical-align: top;
-            } */
+			/* textarea {
+				display: inline;
+				width: 100%;
+				resize: none;
+				border: none;
+				font: inherit;
+				padding: 0;
+				margin: 0;
+				outline: none;
+				vertical-align: top;
+			} */
 
-            textarea {
-                box-sizing: border-box;
-                width: 100%;
-                height: 800px;
-                resize: none;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                font: inherit;
-                padding: 10px;
-                margin: 0;
-            }
-        </style>
-    </head>
-    <body>
-        <header>
-            <div id="toolbar">
-                <a href="/" id="senk" class="button">senk</a>
-                <h1 id="title"></h1>
-                <div id="buttons">
-                    <!-- <button id="pinbtn">pin</button> -->
-                    <button id="deletebtn">delete</button>
-                    <!-- <button id="sharebtn">share</button>
-                    <button id="historybtn">history</button> -->
-                    <button id="rawbtn">raw</button>
-                    <button id="newbtn" class="alwaysbtn">new</button>
-                </div>
-            </div>
-            <div id="status" class="inactive">
-                <span id="statustext">Error</span>
-                <div><button onclick="document.getElementById('status').classList.add('inactive')">Close</button></div>
-            </div>
-            <input type="text" id="name" autocomplete="off">
-        </header>
-        <main></main>
-    </body>
+			textarea {
+				box-sizing: border-box;
+				width: 100%;
+				height: 800px;
+				resize: none;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				font: inherit;
+				padding: 10px;
+				margin: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div id="toolbar">
+				<a href="/" id="senk" class="button">senk</a>
+				<h1 id="title"></h1>
+				<div id="buttons">
+					<!-- <button id="pinbtn">pin</button> -->
+					<button id="deletebtn">delete</button>
+					<!-- <button id="sharebtn">share</button>
+					<button id="historybtn">history</button> -->
+					<button id="rawbtn">raw</button>
+					<button id="newbtn" class="alwaysbtn">new</button>
+				</div>
+			</div>
+			<div id="status" class="inactive">
+				<span id="statustext">Error</span>
+				<div><button onclick="document.getElementById('status').classList.add('inactive')">Close</button></div>
+			</div>
+			<input type="text" id="name" autocomplete="off">
+		</header>
+		<main></main>
+	</body>
 </html>
