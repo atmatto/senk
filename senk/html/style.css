@@ -93,7 +93,7 @@ button:hover:active, input[type="submit"]:hover:active, .button:hover:active {
 	display: none;
 }
 
-.note #buttons *, .trashnote #historybtn {
+.note-view #buttons *, .trashnote-view #historybtn {
 	display: initial;
 }
 
@@ -129,7 +129,7 @@ button:hover:active, input[type="submit"]:hover:active, .button:hover:active {
 	margin-top: 10px;
 }
 
-.note #name {
+.note-view #name {
 	display: unset;
 }
 

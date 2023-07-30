@@ -214,13 +214,13 @@ const build = (path) => {
 			getTrash()
 			title.replaceChildren(add(null, "span", "Trash"))
 			header.classList.remove("notitle")
-			document.body.className = "index"
+			document.body.className = "index-view"
 			break
 		case 2:
 			getTrashNote(path[1], path[2])
 			title.replaceChildren(add(null, "span", "(trash) "), add(null, "a", path[1], {href: "/"+path[1]}), add(null, "span", "/"+path[2]))
 			header.classList.remove("notitle")
-			document.body.className = "trashnote"
+			document.body.className = "trashnote-view"
 			break
 		}
 	} else {
@@ -228,19 +228,19 @@ const build = (path) => {
 		case 0:
 			getIndex("")
 			title.replaceChildren([])
-			document.body.className = "index"
+			document.body.className = "index-view"
 			break
 		case 1:
 			getIndex(path[0])
 			title.replaceChildren(add(null, "span", path[0]))
 			header.classList.remove("notitle")
-			document.body.className = "index"
+			document.body.className = "index-view"
 			break
 		case 2:
 			getNote(path[0], path[1])
 			title.replaceChildren(add(null, "a", path[0], {href: "/"+path[0]}), add(null, "span", "/"+path[1]))
 			header.classList.remove("notitle")
-			document.body.className = "note"
+			document.body.className = "note-view"
 			document.getElementById("rawbtn").onclick = () => {
 				goto(document.location + "/raw", false)
 			}
